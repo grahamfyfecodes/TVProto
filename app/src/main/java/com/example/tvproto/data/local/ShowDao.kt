@@ -4,6 +4,9 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import com.example.tvproto.data.local.model.Episode
+import com.example.tvproto.data.local.model.Show
+import com.example.tvproto.data.local.model.ShowWithEpisodes
 
 @Dao
 interface ShowDao {
@@ -17,6 +20,12 @@ interface ShowDao {
     @Query("SELECT * FROM shows")
     suspend fun getAllShows(): List<Show>
 
-    @Query("SELECT * FROM episodes WHERE showId = :showId ORDER BY season, number")
-    suspend fun getEpisodesForShow(showId: Int): List<Episode>
+    @Query("SELECT * FROM shows WHERE id = :showId")
+    suspend fun getShowWithEpisodes(showId: Int): ShowWithEpisodes
+
+    @Query("SELECT * FROM shows WHERE status = 'Running'")
+    suspend fun getRunningShows(): List<Show>
+
+    @Query("UPDATE episodes SET watched = :watched WHERE id = :episodeId")
+    suspend fun setEpisodeWatched(episodeId: Int, watched: Boolean)
 }

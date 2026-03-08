@@ -17,7 +17,9 @@ import com.example.tvproto.viewmodel.ShowViewModelFactory
 class MainActivity : ComponentActivity() {
 
     private val database by lazy {
-        Room.databaseBuilder(applicationContext, AppDatabase::class.java, "showtrack-db").build()
+        Room.databaseBuilder(applicationContext, AppDatabase::class.java, "showtrack-db")
+            .fallbackToDestructiveMigration(false)
+            .build()
     }
 
     private val repository by lazy {

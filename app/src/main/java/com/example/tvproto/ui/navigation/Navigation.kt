@@ -2,6 +2,7 @@ package com.example.tvproto.ui.navigation
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Search
@@ -16,14 +17,20 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.tvproto.ui.screens.SearchScreen
+import com.example.tvproto.ui.screens.ShowDetailScreen
 import com.example.tvproto.ui.screens.TrackedShowsScreen
+import com.example.tvproto.ui.screens.UpcomingScreen
 import com.example.tvproto.viewmodel.ShowViewModel
 
 sealed class Screen(val route: String, val label: String, val icon: ImageVector) {
     object Dashboard : Screen("dashboard", "Home", Icons.Default.Home)
     object Search : Screen("search", "Search", Icons.Default.Search)
-    object Tracked : Screen("tracked", "My Shows", Icons.Default.List)
+    object Tracked : Screen("tracked", "My Shows", Icons.AutoMirrored.Filled.List)
     object Upcoming : Screen("upcoming", "Upcoming", Icons.Default.DateRange)
+
+    object ShowDetail : Screen("show/{showId}", "Detail", Icons.AutoMirrored.Filled.List) {
+        fun createRoute(showId: Int) = "show/$showId"
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -45,10 +52,9 @@ fun AppNavigation(viewModel: ShowViewModel) {
                         onClick = {
                             navController.navigate(screen.route) {
                                 popUpTo(navController.graph.findStartDestination().id) {
-                                    saveState = true
+                                    saveState = false
                                 }
                                 launchSingleTop = true
-                                restoreState = true
                             }
                         }
                     )
@@ -68,10 +74,21 @@ fun AppNavigation(viewModel: ShowViewModel) {
                 SearchScreen(viewModel = viewModel)
             }
             composable(Screen.Tracked.route) {
-                TrackedShowsScreen(viewModel = viewModel)
+                TrackedShowsScreen(
+                    viewModel = viewModel,
+                    onShowClick = { showId ->
+                        navController.navigate(Screen.ShowDetail.createRoute(showId))
+                    }
+                )
             }
             composable(Screen.Upcoming.route) {
-                Text("Upcoming - Coming Soon")
+                UpcomingScreen(viewModel = viewModel)
+            }
+            composable("show/{showId}") { backStackEntry ->
+                val showId = backStackEntry.arguments?.getString("showId")?.toIntOrNull()
+                showId?.let {
+                    ShowDetailScreen(viewModel = viewModel, showId = it)
+                }
             }
         }
     }

@@ -6,7 +6,7 @@ object Constants {
     const val DEFAULT_COUNTRY = "US"
 
     // Upcoming window
-    const val UPCOMING_DAYS_AHEAD = 7
+    const val UPCOMING_DAYS_AHEAD = 28
 
     // API
     const val TVMAZE_BASE_URL = "https://api.tvmaze.com/"

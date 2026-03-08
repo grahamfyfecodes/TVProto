@@ -1,4 +1,4 @@
-package com.example.tvproto.data.local
+package com.example.tvproto.data.local.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
@@ -11,5 +11,7 @@ data class Episode(
     val number: Int,
     val name: String,
     val airdate: String?,
-    val watched: Boolean = false
+    val airtime: String?,
+    val watched: Boolean = false,
+    val lastUpdated: Long = System.currentTimeMillis()
 )

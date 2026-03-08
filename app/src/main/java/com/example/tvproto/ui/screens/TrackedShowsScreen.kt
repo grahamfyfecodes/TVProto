@@ -1,5 +1,6 @@
 package com.example.tvproto.ui.screens
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -10,11 +11,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.example.tvproto.data.local.Show
+import com.example.tvproto.data.local.model.Show
 import com.example.tvproto.viewmodel.ShowViewModel
 
 @Composable
-fun TrackedShowsScreen(viewModel: ShowViewModel) {
+fun TrackedShowsScreen(viewModel: ShowViewModel, onShowClick: (Int) -> Unit) {
     val trackedShows by viewModel.trackedShows.collectAsState()
 
     if (trackedShows.isEmpty()) {
@@ -36,16 +37,18 @@ fun TrackedShowsScreen(viewModel: ShowViewModel) {
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             items(trackedShows) { show ->
-                TrackedShowCard(show = show)
+                TrackedShowCard(show = show, onClick = { onShowClick(show.id) })
             }
         }
     }
 }
 
 @Composable
-fun TrackedShowCard(show: Show) {
+fun TrackedShowCard(show: Show, onClick: () -> Unit) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() },
         shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
