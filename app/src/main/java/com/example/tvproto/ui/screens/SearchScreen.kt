@@ -78,7 +78,8 @@ fun SearchScreen(viewModel: ShowViewModel, isOnline: Boolean) {
                     ShowCard(
                         show = show,
                         isTracked = trackedShows.any { it.id == show.id },
-                        onTrack = { viewModel.trackShow(show) }
+                        onTrack = { viewModel.trackShow(show) },
+                        onUntrack = { viewModel.untrackShow(show.id) }
                     )
                 }
             }
@@ -87,12 +88,12 @@ fun SearchScreen(viewModel: ShowViewModel, isOnline: Boolean) {
 }
 
 @Composable
-fun ShowCard(show: TvMazeShow, isTracked: Boolean, onTrack: () -> Unit) {
+fun ShowCard(show: TvMazeShow, isTracked: Boolean, onTrack: () -> Unit, onUntrack: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
-            .clickable(enabled = !isTracked) { onTrack() },
+            .clickable { if (isTracked) onUntrack() else onTrack() },
         colors = CardDefaults.cardColors(
             containerColor = if (isTracked)
                 MaterialTheme.colorScheme.secondaryContainer

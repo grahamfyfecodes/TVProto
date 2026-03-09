@@ -45,6 +45,13 @@ class ShowViewModel(private val repository: ShowRepository) : ViewModel() {
         }
     }
 
+    fun untrackShow(showId: Int) {
+        viewModelScope.launch {
+            repository.untrackShow(showId)
+            _trackedShows.value = repository.getSavedShows()
+        }
+    }
+
     fun loadShow(showId: Int) {
         viewModelScope.launch {
             _selectedShow.value = repository.getShowWithEpisodes(showId)

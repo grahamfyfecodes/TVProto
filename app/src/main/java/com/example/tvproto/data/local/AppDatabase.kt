@@ -6,7 +6,7 @@ import androidx.room.TypeConverters
 import com.example.tvproto.data.local.model.Episode
 import com.example.tvproto.data.local.model.Show
 
-@Database(entities = [Show::class, Episode::class], version = 3, exportSchema = false)
+@Database(entities = [Show::class, Episode::class], version = 4, exportSchema = false)
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun showDao(): ShowDao

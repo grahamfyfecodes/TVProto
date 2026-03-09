@@ -14,5 +14,6 @@ data class Show(
     val webChannelName: String?,
     val scheduleTime: String?,
     val scheduleDays: List<DayOfWeek>?,
-    val lastUpdated: Long = System.currentTimeMillis()
+    val lastUpdated: Long = System.currentTimeMillis(),
+    val tracked: Boolean = true
 )

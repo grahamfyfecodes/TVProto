@@ -22,6 +22,13 @@ class ShowRepository(
     }
 
     suspend fun trackShow(show: TvMazeShow) {
+        // Check for soft deleted shows to avoid overwrite
+        val existing = dao.getShowById(show.id)
+        if (existing != null) {
+            dao.setShowTracked(show.id, true)
+            return
+        }
+
         val localShow = Show(
             id = show.id,
             name = show.name,
@@ -84,5 +91,9 @@ class ShowRepository(
                 getUpcomingForShow(show)
             }
             .sortedWith(compareBy({ it.date }, { it.time }))
+    }
+
+    suspend fun untrackShow(showId: Int) {
+        dao.setShowTracked(showId, false)
     }
 }
