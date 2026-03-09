@@ -110,4 +110,8 @@ class ShowRepository(
             )
         }
     }
+
+    suspend fun markAllWatched(showId: Int) {
+        dao.markAllWatched(showId)
+    }
 }

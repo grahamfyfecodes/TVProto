@@ -64,7 +64,8 @@ fun TrackedShowsScreen(
                                 viewModel.retrackShow(info.show.id)
                             }
                         }
-                    }
+                    },
+                    onMarkAllWatched = { viewModel.markAllWatched(info.show.id) }
                 )
             }
         }
@@ -72,7 +73,12 @@ fun TrackedShowsScreen(
 }
 
 @Composable
-fun TrackedShowCard(info: TrackedShowInfo, onClick: () -> Unit, onUntrack: () -> Unit) {
+fun TrackedShowCard(
+    info: TrackedShowInfo,
+    onClick: () -> Unit,
+    onUntrack: () -> Unit,
+    onMarkAllWatched: () -> Unit
+) {
     var menuExpanded by remember { mutableStateOf(false) }
 
     val channel = info.show.networkName
@@ -150,8 +156,10 @@ fun TrackedShowCard(info: TrackedShowInfo, onClick: () -> Unit, onUntrack: () ->
                     )
                     DropdownMenuItem(
                         text = { Text("Mark all watched") },
-                        enabled = false,
-                        onClick = { }
+                        onClick = {
+                            menuExpanded = false
+                            onMarkAllWatched()
+                        }
                     )
                     DropdownMenuItem(
                         text = { Text("Notifications") },

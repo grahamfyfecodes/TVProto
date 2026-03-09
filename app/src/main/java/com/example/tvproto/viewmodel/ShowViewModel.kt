@@ -79,6 +79,13 @@ class ShowViewModel(private val repository: ShowRepository) : ViewModel() {
         }
     }
 
+    fun markAllWatched(showId: Int) {
+        viewModelScope.launch {
+            repository.markAllWatched(showId)
+            loadTrackedShows()
+        }
+    }
+
     fun loadUpcoming() {
         viewModelScope.launch {
             _upcomingEntries.value = repository.getScheduleBasedUpcoming()
