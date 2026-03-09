@@ -1,4 +1,4 @@
-package com.example.tvproto
+package com.example.tvproto.util
 
 // Some constants are placeholders for future options
 object Constants {

@@ -1,6 +1,6 @@
 package com.example.tvproto.data.repository
 
-import com.example.tvproto.Constants.UPCOMING_DAYS_AHEAD
+import com.example.tvproto.util.Constants.UPCOMING_DAYS_AHEAD
 import com.example.tvproto.data.local.model.Episode
 import com.example.tvproto.data.local.model.Show
 import com.example.tvproto.data.local.ShowDao
@@ -68,17 +68,20 @@ class ShowRepository(
         val today = now()
         val dates = (0L..UPCOMING_DAYS_AHEAD.toLong()).map { today.plusDays(it) }
 
+        fun getUpcomingForShow(show: Show): List<UpcomingScheduleEntry> =
+            dates
+                .filter { date -> show.scheduleDays?.contains(date.dayOfWeek) == true }
+                .map { date ->
+                UpcomingScheduleEntry(
+                    show = show,
+                    date = date.toString(),
+                    time = show.scheduleTime
+                )
+            }
+
         return dao.getRunningShows()
             .flatMap { show ->
-                dates
-                    .filter { date -> show.scheduleDays?.contains(date.dayOfWeek) == true }
-                    .map { date ->
-                        UpcomingScheduleEntry(
-                            show = show,
-                            date = date.toString(),
-                            time = show.scheduleTime
-                        )
-                    }
+                getUpcomingForShow(show)
             }
             .sortedWith(compareBy({ it.date }, { it.time }))
     }

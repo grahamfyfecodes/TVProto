@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.*
@@ -20,6 +19,7 @@ import com.example.tvproto.ui.screens.SearchScreen
 import com.example.tvproto.ui.screens.ShowDetailScreen
 import com.example.tvproto.ui.screens.TrackedShowsScreen
 import com.example.tvproto.ui.screens.UpcomingScreen
+import com.example.tvproto.util.NetworkMonitor
 import com.example.tvproto.viewmodel.ShowViewModel
 
 sealed class Screen(val route: String, val label: String, val icon: ImageVector) {
@@ -35,11 +35,12 @@ sealed class Screen(val route: String, val label: String, val icon: ImageVector)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AppNavigation(viewModel: ShowViewModel) {
+fun AppNavigation(viewModel: ShowViewModel, networkMonitor: NetworkMonitor) {
     val navController = rememberNavController()
     val screens = listOf(Screen.Dashboard, Screen.Search, Screen.Tracked, Screen.Upcoming)
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
+    val isOnline by networkMonitor.isOnline.collectAsState()
 
     Scaffold(
         bottomBar = {
@@ -71,7 +72,7 @@ fun AppNavigation(viewModel: ShowViewModel) {
                 Text("Dashboard - Coming Soon")
             }
             composable(Screen.Search.route) {
-                SearchScreen(viewModel = viewModel)
+                SearchScreen(viewModel = viewModel, isOnline = isOnline)
             }
             composable(Screen.Tracked.route) {
                 TrackedShowsScreen(

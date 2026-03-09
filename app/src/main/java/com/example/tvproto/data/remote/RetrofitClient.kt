@@ -1,7 +1,7 @@
 package com.example.tvproto.data.remote
 
-import com.example.tvproto.Constants
-import com.example.tvproto.Constants.TVMAZE_BASE_URL
+import com.example.tvproto.util.Constants
+import com.example.tvproto.util.Constants.TVMAZE_BASE_URL
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 

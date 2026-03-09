@@ -19,7 +19,7 @@ import com.example.tvproto.viewmodel.ShowViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SearchScreen(viewModel: ShowViewModel) {
+fun SearchScreen(viewModel: ShowViewModel, isOnline: Boolean) {
 
     var query by remember { mutableStateOf("") }
     val searchResults by viewModel.searchResults.collectAsState()
@@ -54,11 +54,12 @@ fun SearchScreen(viewModel: ShowViewModel) {
             Spacer(modifier = Modifier.height(8.dp))
 
             Button(
-                onClick = { viewModel.search(query) },
+                onClick = { if (isOnline) viewModel.search(query) },
+                enabled = isOnline,
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp)
             ) {
-                Text("Search")
+                Text(if (isOnline) "Search" else "Offline")
             }
 
             Spacer(modifier = Modifier.height(16.dp))

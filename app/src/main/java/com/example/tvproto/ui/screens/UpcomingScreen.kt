@@ -27,7 +27,7 @@ fun UpcomingScreen(viewModel: ShowViewModel) {
             contentAlignment = Alignment.Center
         ) {
             Text(
-                "Nothing coming up in the next 7 days",
+                "Nothing coming up. Try tracking more shows!",
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

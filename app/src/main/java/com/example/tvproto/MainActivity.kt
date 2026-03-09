@@ -11,6 +11,7 @@ import com.example.tvproto.data.repository.ShowRepository
 import com.example.tvproto.ui.navigation.AppNavigation
 import com.example.tvproto.ui.screens.SearchScreen
 import com.example.tvproto.ui.theme.TVProtoTheme
+import com.example.tvproto.util.NetworkMonitor
 import com.example.tvproto.viewmodel.ShowViewModel
 import com.example.tvproto.viewmodel.ShowViewModelFactory
 
@@ -30,12 +31,18 @@ class MainActivity : ComponentActivity() {
         ShowViewModelFactory(repository)
     }
 
+
+    private val networkMonitor by lazy {
+        NetworkMonitor(applicationContext)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             TVProtoTheme {
-                AppNavigation(viewModel = viewModel)
+                AppNavigation(viewModel = viewModel, networkMonitor = networkMonitor)
             }
         }
     }
+
 }
