@@ -41,8 +41,10 @@ fun AppNavigation(viewModel: ShowViewModel, networkMonitor: NetworkMonitor) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
     val isOnline by networkMonitor.isOnline.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
 
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         bottomBar = {
             NavigationBar {
                 screens.forEach { screen ->
@@ -79,7 +81,8 @@ fun AppNavigation(viewModel: ShowViewModel, networkMonitor: NetworkMonitor) {
                     viewModel = viewModel,
                     onShowClick = { showId ->
                         navController.navigate(Screen.ShowDetail.createRoute(showId))
-                    }
+                    },
+                    snackbarHostState = snackbarHostState
                 )
             }
             composable(Screen.Upcoming.route) {

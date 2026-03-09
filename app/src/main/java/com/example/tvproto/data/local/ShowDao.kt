@@ -34,4 +34,10 @@ interface ShowDao {
 
     @Query("UPDATE shows SET tracked = :tracked WHERE id = :showId")
     suspend fun setShowTracked(showId: Int, tracked: Boolean)
+
+    @Query("SELECT COUNT(*) FROM episodes WHERE showId = :showId")
+    suspend fun getEpisodeCount(showId: Int): Int
+
+    @Query("SELECT COUNT(*) FROM episodes WHERE showId = :showId AND watched = 1")
+    suspend fun getWatchedCount(showId: Int): Int
 }

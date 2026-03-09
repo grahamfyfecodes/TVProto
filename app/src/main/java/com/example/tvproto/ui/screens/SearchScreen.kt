@@ -77,7 +77,7 @@ fun SearchScreen(viewModel: ShowViewModel, isOnline: Boolean) {
                 items(searchResults) { show ->
                     ShowCard(
                         show = show,
-                        isTracked = trackedShows.any { it.id == show.id },
+                        isTracked = trackedShows.any { it.show.id == show.id },
                         onTrack = { viewModel.trackShow(show) },
                         onUntrack = { viewModel.untrackShow(show.id) }
                     )

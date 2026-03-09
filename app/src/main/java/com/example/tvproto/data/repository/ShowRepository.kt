@@ -5,6 +5,7 @@ import com.example.tvproto.data.local.model.Episode
 import com.example.tvproto.data.local.model.Show
 import com.example.tvproto.data.local.ShowDao
 import com.example.tvproto.data.local.model.ShowWithEpisodes
+import com.example.tvproto.data.local.model.TrackedShowInfo
 import com.example.tvproto.data.local.model.UpcomingScheduleEntry
 import com.example.tvproto.data.remote.TvMazeShow
 import com.example.tvproto.data.remote.TvMazeService
@@ -64,7 +65,6 @@ class ShowRepository(
         dao.insertEpisodes(episodes)
         return episodes
     }
-    suspend fun getSavedShows(): List<Show> = dao.getAllShows()
 
     suspend fun getShowWithEpisodes(showId: Int): ShowWithEpisodes = dao.getShowWithEpisodes(showId)
 
@@ -95,5 +95,19 @@ class ShowRepository(
 
     suspend fun untrackShow(showId: Int) {
         dao.setShowTracked(showId, false)
+    }
+
+    suspend fun retrackShow(showId: Int) {
+        dao.setShowTracked(showId, true)
+    }
+
+    suspend fun getTrackedShowsWithProgress(): List<TrackedShowInfo> {
+        return dao.getAllShows().map { show ->
+            TrackedShowInfo(
+                show = show,
+                watchedCount = dao.getWatchedCount(show.id),
+                totalCount = dao.getEpisodeCount(show.id)
+            )
+        }
     }
 }

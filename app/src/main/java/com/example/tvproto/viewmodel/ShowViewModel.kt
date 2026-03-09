@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.tvproto.data.local.model.Episode
 import com.example.tvproto.data.local.model.Show
 import com.example.tvproto.data.local.model.ShowWithEpisodes
+import com.example.tvproto.data.local.model.TrackedShowInfo
 import com.example.tvproto.data.local.model.UpcomingScheduleEntry
 import com.example.tvproto.data.remote.TvMazeShow
 import com.example.tvproto.data.repository.ShowRepository
@@ -17,8 +18,8 @@ class ShowViewModel(private val repository: ShowRepository) : ViewModel() {
     private val _searchResults = MutableStateFlow<List<TvMazeShow>>(emptyList())
     val searchResults: StateFlow<List<TvMazeShow>> = _searchResults
 
-    private val _trackedShows = MutableStateFlow<List<Show>>(emptyList())
-    val trackedShows: StateFlow<List<Show>> = _trackedShows
+    private val _trackedShows = MutableStateFlow<List<TrackedShowInfo>>(emptyList())
+    val trackedShows: StateFlow<List<TrackedShowInfo>> = _trackedShows
 
     private val _upcomingEntries = MutableStateFlow<List<UpcomingScheduleEntry>>(emptyList())
     val upcomingEntries: StateFlow<List<UpcomingScheduleEntry>> = _upcomingEntries
@@ -28,7 +29,7 @@ class ShowViewModel(private val repository: ShowRepository) : ViewModel() {
 
     init {
         viewModelScope.launch {
-            _trackedShows.value = repository.getSavedShows()
+            _trackedShows.value = repository.getTrackedShowsWithProgress()
         }
     }
 
@@ -41,14 +42,21 @@ class ShowViewModel(private val repository: ShowRepository) : ViewModel() {
     fun trackShow(show: TvMazeShow) {
         viewModelScope.launch {
             repository.trackShow(show)
-            _trackedShows.value = repository.getSavedShows()
+            _trackedShows.value = repository.getTrackedShowsWithProgress()
         }
     }
 
     fun untrackShow(showId: Int) {
         viewModelScope.launch {
             repository.untrackShow(showId)
-            _trackedShows.value = repository.getSavedShows()
+            _trackedShows.value = repository.getTrackedShowsWithProgress()
+        }
+    }
+
+    fun retrackShow(showId: Int) {
+        viewModelScope.launch {
+            repository.retrackShow(showId)
+            _trackedShows.value = repository.getTrackedShowsWithProgress()
         }
     }
 
