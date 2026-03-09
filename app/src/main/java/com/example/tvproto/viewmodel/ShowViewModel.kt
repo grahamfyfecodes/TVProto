@@ -53,6 +53,12 @@ class ShowViewModel(private val repository: ShowRepository) : ViewModel() {
         }
     }
 
+    fun loadTrackedShows() {
+        viewModelScope.launch {
+            _trackedShows.value = repository.getTrackedShowsWithProgress()
+        }
+    }
+
     fun retrackShow(showId: Int) {
         viewModelScope.launch {
             repository.retrackShow(showId)

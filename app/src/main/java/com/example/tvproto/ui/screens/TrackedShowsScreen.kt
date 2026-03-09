@@ -26,6 +26,10 @@ fun TrackedShowsScreen(
     val trackedShows by viewModel.trackedShows.collectAsState()
     val scope = rememberCoroutineScope()
 
+    LaunchedEffect(Unit) {
+        viewModel.loadTrackedShows()
+    }
+
     if (trackedShows.isEmpty()) {
         Box(
             modifier = Modifier.fillMaxSize(),
