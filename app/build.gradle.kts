@@ -60,6 +60,7 @@ dependencies {
     implementation(libs.retrofit.gson)
     implementation(libs.navigation.compose)
     implementation(libs.core.ktx)
+    implementation(libs.coil.compose)
     ksp(libs.room.compiler)
 
     testImplementation(libs.junit)
