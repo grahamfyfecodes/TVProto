@@ -28,7 +28,7 @@ fun SearchScreen(viewModel: ShowViewModel, isOnline: Boolean) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("ShowTrack") },
+                title = { Text("Search") },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer
                 )

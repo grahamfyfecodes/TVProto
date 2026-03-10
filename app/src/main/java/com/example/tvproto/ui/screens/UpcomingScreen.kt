@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.dp
 import com.example.tvproto.data.local.model.UpcomingScheduleEntry
 import com.example.tvproto.viewmodel.ShowViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UpcomingScreen(viewModel: ShowViewModel) {
     val upcoming by viewModel.upcomingEntries.collectAsState()
@@ -21,26 +22,40 @@ fun UpcomingScreen(viewModel: ShowViewModel) {
         viewModel.loadUpcoming()
     }
 
-    if (upcoming.isEmpty()) {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                "Nothing coming up. Try tracking more shows!",
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Upcoming") },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer
+                )
             )
         }
-    } else {
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            items(upcoming) { entry ->
-                UpcomingCard(entry = entry)
+    ) { padding ->
+        if (upcoming.isEmpty()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    "Nothing coming up. Try tracking more shows!",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        } else {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(upcoming) { entry ->
+                    UpcomingCard(entry = entry)
+                }
             }
         }
     }

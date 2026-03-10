@@ -61,6 +61,7 @@ dependencies {
     implementation(libs.navigation.compose)
     implementation(libs.core.ktx)
     implementation(libs.coil.compose)
+    implementation(libs.material.icons.extended)
     ksp(libs.room.compiler)
 
     testImplementation(libs.junit)
