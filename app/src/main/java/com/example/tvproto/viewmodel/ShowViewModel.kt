@@ -86,6 +86,13 @@ class ShowViewModel(private val repository: ShowRepository) : ViewModel() {
         }
     }
 
+    fun toggleSeasonWatched(showId: Int, season: Int, allWatched: Boolean) {
+        viewModelScope.launch {
+            repository.setSeasonWatched(showId, season, !allWatched)
+            loadShow(showId)
+        }
+    }
+
     fun loadUpcoming() {
         viewModelScope.launch {
             _upcomingEntries.value = repository.getScheduleBasedUpcoming()

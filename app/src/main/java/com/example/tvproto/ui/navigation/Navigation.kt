@@ -91,7 +91,11 @@ fun AppNavigation(viewModel: ShowViewModel, networkMonitor: NetworkMonitor) {
             composable("show/{showId}") { backStackEntry ->
                 val showId = backStackEntry.arguments?.getString("showId")?.toIntOrNull()
                 showId?.let {
-                    ShowDetailScreen(viewModel = viewModel, showId = it)
+                    ShowDetailScreen(
+                        viewModel = viewModel,
+                        showId = it,
+                        onBack = { navController.popBackStack() }
+                    )
                 }
             }
         }

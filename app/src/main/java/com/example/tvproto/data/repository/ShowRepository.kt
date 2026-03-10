@@ -114,4 +114,8 @@ class ShowRepository(
     suspend fun markAllWatched(showId: Int) {
         dao.markAllWatched(showId)
     }
+
+    suspend fun setSeasonWatched(showId: Int, season: Int, watched: Boolean) {
+        dao.setSeasonWatched(showId, season, watched)
+    }
 }

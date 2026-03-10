@@ -17,12 +17,15 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -33,6 +36,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -47,8 +53,9 @@ import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ShowDetailScreen(viewModel: ShowViewModel, showId: Int) {
+fun ShowDetailScreen(viewModel: ShowViewModel, showId: Int, onBack: () -> Unit) {
     val showWithEpisodes by viewModel.selectedShow.collectAsState()
+    var collapsedSeasons by remember { mutableStateOf(emptySet<Int>()) }
 
     LaunchedEffect(showId) {
         viewModel.loadShow(showId)
@@ -73,6 +80,11 @@ fun ShowDetailScreen(viewModel: ShowViewModel, showId: Int) {
         topBar = {
             TopAppBar(
                 title = { Text(data.show.name) },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    }
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer
                 )
@@ -159,6 +171,18 @@ fun ShowDetailScreen(viewModel: ShowViewModel, showId: Int) {
                             trackColor = MaterialTheme.colorScheme.surfaceVariant,
                         )
 
+                        if (data.show.status == "Running" && !data.show.scheduleDays.isNullOrEmpty()) {
+                            val days = data.show.scheduleDays.joinToString(", ") {
+                                it.name.lowercase().replaceFirstChar { c -> c.uppercase() }
+                            }
+                            val timeStr = if (!data.show.scheduleTime.isNullOrEmpty()) " at ${data.show.scheduleTime}" else ""
+                            Text(
+                                text = "Airs $days$timeStr",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
+
                         Text(
                             text = "$watchedEpisodes/$totalEpisodes watched",
                             style = MaterialTheme.typography.bodySmall,
@@ -167,25 +191,48 @@ fun ShowDetailScreen(viewModel: ShowViewModel, showId: Int) {
                     }
                 }
             }
-
             episodesBySeason.forEach { (season, episodes) ->
                 val watchedCount = episodes.count { it.watched }
+                val allWatched = watchedCount == episodes.size
+                val collapsed = collapsedSeasons.contains(season)
 
                 item {
-                    Text(
-                        text = "Season $season — $watchedCount/${episodes.size}",
-                        style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.padding(top = 12.dp, bottom = 4.dp)
-                    )
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                collapsedSeasons = if (collapsed)
+                                    collapsedSeasons - season
+                                else
+                                    collapsedSeasons + season
+                            }
+                            .padding(top = if (collapsed) 4.dp else 12.dp, bottom = 4.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Season $season — $watchedCount/${episodes.size}",
+                            style = MaterialTheme.typography.titleSmall,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+
+                        Checkbox(
+                            checked = allWatched,
+                            onCheckedChange = {
+                                viewModel.toggleSeasonWatched(data.show.id, season, allWatched)
+                            }
+                        )
+                    }
                 }
 
-                items(episodes) { episode ->
-                    EpisodeRow(
-                        episode = episode,
-                        onToggle = { viewModel.toggleWatched(episode) }
-                    )
+                if (!collapsed) {
+                    items(episodes) { episode ->
+                        EpisodeRow(
+                            episode = episode,
+                            onToggle = { viewModel.toggleWatched(episode) }
+                        )
+                    }
                 }
             }
         }

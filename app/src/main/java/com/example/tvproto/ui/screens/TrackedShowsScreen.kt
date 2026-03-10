@@ -1,5 +1,6 @@
 package com.example.tvproto.ui.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -7,12 +8,17 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import com.example.tvproto.data.local.model.TrackedShowInfo
 import com.example.tvproto.viewmodel.ShowViewModel
 import kotlinx.coroutines.launch
@@ -35,11 +41,20 @@ fun TrackedShowsScreen(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
-            Text(
-                "No tracked shows yet.\nSearch and add some!",
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Icon(
+                    Icons.Default.Search,
+                    contentDescription = null,
+                    modifier = Modifier.size(48.dp),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+                Text(
+                    "No tracked shows yet.\nSearch and add some!",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
         }
     } else {
         LazyColumn(
@@ -94,18 +109,72 @@ fun TrackedShowCard(
     ) {
         Row(
             modifier = Modifier
-                .padding(16.dp)
+                .padding(12.dp)
                 .fillMaxWidth(),
             verticalAlignment = Alignment.Top
         ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = info.show.name,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
+            if (info.show.imageUrl != null) {
+                AsyncImage(
+                    model = info.show.imageUrl,
+                    contentDescription = info.show.name,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .width(56.dp)
+                        .height(80.dp)
+                        .clip(RoundedCornerShape(8.dp))
                 )
+            } else {
+                Box(
+                    modifier = Modifier
+                        .width(56.dp)
+                        .height(80.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(MaterialTheme.colorScheme.surfaceVariant),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        Icons.Default.PlayArrow,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+            }
 
-                Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.width(12.dp))
+
+            Column(modifier = Modifier.weight(1f)) {
+                Row(verticalAlignment = Alignment.Top) {
+                    Text(
+                        text = info.show.name,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.weight(1f)
+                    )
+                    Box {
+                        IconButton(onClick = { menuExpanded = true }) {
+                            Icon(Icons.Default.MoreVert, contentDescription = "Options")
+                        }
+                        DropdownMenu(
+                            expanded = menuExpanded,
+                            onDismissRequest = { menuExpanded = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text("Untrack") },
+                                onClick = { menuExpanded = false; onUntrack() }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Mark all watched") },
+                                onClick = { menuExpanded = false; onMarkAllWatched() }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Notifications") },
+                                enabled = false,
+                                onClick = { }
+                            )
+                        }
+                    }
+                }
 
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text(
@@ -115,12 +184,7 @@ fun TrackedShowCard(
                     )
                     info.show.status?.let {
                         Text(
-                            text = "·",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Text(
-                            text = it,
+                            "· $it",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -134,39 +198,20 @@ fun TrackedShowCard(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
-            }
 
-            Box {
-                IconButton(onClick = { menuExpanded = true }) {
-                    Icon(
-                        Icons.Default.MoreVert,
-                        contentDescription = "Options"
-                    )
-                }
-                DropdownMenu(
-                    expanded = menuExpanded,
-                    onDismissRequest = { menuExpanded = false }
-                ) {
-                    DropdownMenuItem(
-                        text = { Text("Untrack") },
-                        onClick = {
-                            menuExpanded = false
-                            onUntrack()
-                        }
-                    )
-                    DropdownMenuItem(
-                        text = { Text("Mark all watched") },
-                        onClick = {
-                            menuExpanded = false
-                            onMarkAllWatched()
-                        }
-                    )
-                    DropdownMenuItem(
-                        text = { Text("Notifications") },
-                        enabled = false,
-                        onClick = { }
-                    )
-                }
+                Spacer(modifier = Modifier.height(6.dp))
+
+                val progress = if (info.totalCount > 0)
+                    info.watchedCount.toFloat() / info.totalCount else 0f
+
+                LinearProgressIndicator(
+                    progress = { progress },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(6.dp)
+                        .clip(RoundedCornerShape(3.dp)),
+                    trackColor = MaterialTheme.colorScheme.outlineVariant,
+                )
             }
         }
     }

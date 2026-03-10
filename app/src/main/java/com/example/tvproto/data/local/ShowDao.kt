@@ -43,4 +43,7 @@ interface ShowDao {
 
     @Query("UPDATE episodes SET watched = 1 WHERE showId = :showId")
     suspend fun markAllWatched(showId: Int)
+
+    @Query("UPDATE episodes SET watched = :watched WHERE showId = :showId AND season = :season")
+    suspend fun setSeasonWatched(showId: Int, season: Int, watched: Boolean)
 }
