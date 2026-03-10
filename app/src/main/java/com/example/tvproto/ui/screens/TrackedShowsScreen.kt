@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Search
@@ -18,6 +19,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.material.icons.filled.List
 import coil.compose.AsyncImage
 import com.example.tvproto.data.local.model.TrackedShowInfo
 import com.example.tvproto.viewmodel.ShowViewModel
@@ -31,6 +33,19 @@ fun TrackedShowsScreen(
 ) {
     val trackedShows by viewModel.trackedShows.collectAsState()
     val scope = rememberCoroutineScope()
+
+    var sortMode by remember { mutableStateOf("alpha") }
+    var sortMenuExpanded by remember { mutableStateOf(false) }
+
+    val sortedShows = remember(trackedShows, sortMode) {
+        when (sortMode) {
+            "progress" -> trackedShows.sortedBy {
+                if (it.totalCount > 0) it.watchedCount.toFloat() / it.totalCount else 0f
+            }
+            "status" -> trackedShows.sortedBy { if (it.show.status == "Running") 0 else 1 }
+            else -> trackedShows.sortedBy { it.show.name.lowercase() }
+        }
+    }
 
     LaunchedEffect(Unit) {
         viewModel.loadTrackedShows()
@@ -63,7 +78,37 @@ fun TrackedShowsScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            items(trackedShows) { info ->
+            item {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    Box {
+                        IconButton(onClick = { sortMenuExpanded = true }) {
+                            Icon(Icons.AutoMirrored.Filled.List, contentDescription = "Sort")
+                        }
+                        DropdownMenu(
+                            expanded = sortMenuExpanded,
+                            onDismissRequest = { sortMenuExpanded = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text("Alphabetical") },
+                                onClick = { sortMode = "alpha"; sortMenuExpanded = false }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Progress") },
+                                onClick = { sortMode = "progress"; sortMenuExpanded = false }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Running first") },
+                                onClick = { sortMode = "status"; sortMenuExpanded = false }
+                            )
+                        }
+                    }
+                }
+            }
+
+            items(sortedShows) { info ->
                 TrackedShowCard(
                     info = info,
                     onClick = { onShowClick(info.show.id) },
