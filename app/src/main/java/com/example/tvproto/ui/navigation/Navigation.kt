@@ -86,7 +86,12 @@ fun AppNavigation(viewModel: ShowViewModel, networkMonitor: NetworkMonitor) {
                 )
             }
             composable(Screen.Upcoming.route) {
-                UpcomingScreen(viewModel = viewModel)
+                UpcomingScreen(
+                    viewModel = viewModel,
+                    onShowClick = { showId ->
+                        navController.navigate(Screen.ShowDetail.createRoute(showId))
+                    }
+                )
             }
             composable("show/{showId}") { backStackEntry ->
                 val showId = backStackEntry.arguments?.getString("showId")?.toIntOrNull()
