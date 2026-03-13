@@ -1,25 +1,41 @@
 package com.example.tvproto.ui.screens
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
 import com.example.tvproto.data.local.model.UpcomingScheduleEntry
+import com.example.tvproto.ui.components.ShowImage
+import com.example.tvproto.ui.components.ShowImageSize.Small
 import com.example.tvproto.viewmodel.ShowViewModel
 import java.time.LocalDate
+import java.time.LocalDate.now
 import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -27,13 +43,16 @@ import java.time.format.DateTimeFormatter
 fun UpcomingScreen(viewModel: ShowViewModel, onShowClick: (Int) -> Unit) {
     val upcoming by viewModel.upcomingEntries.collectAsState()
 
+    // Load upcoming shows everytime screen is opened
     LaunchedEffect(Unit) {
         viewModel.loadUpcoming()
     }
 
-    val today = remember { LocalDate.now() }
-    val tomorrow = remember { today.plusDays(1) }
+    val today = remember { now() }
+    val tomorrow = today.plusDays(1)
 
+    // Sorted by date
+    // Grouped by day
     val grouped = remember(upcoming) {
         upcoming
             .sortedBy { it.date }
@@ -73,9 +92,10 @@ fun UpcomingScreen(viewModel: ShowViewModel, onShowClick: (Int) -> Unit) {
             ) {
                 grouped.forEach { (date, entries) ->
                     item {
+                        // Parse the date to use as label
+                        // Default to using direct string if the parse fails
                         val label = try {
-                            val parsed = LocalDate.parse(date)
-                            when (parsed) {
+                            when (val parsed = LocalDate.parse(date)) {
                                 today -> "Today"
                                 tomorrow -> "Tomorrow"
                                 else -> parsed.format(DateTimeFormatter.ofPattern("EEEE, MMM d"))
@@ -107,9 +127,7 @@ fun UpcomingScreen(viewModel: ShowViewModel, onShowClick: (Int) -> Unit) {
 
 @Composable
 fun UpcomingCard(entry: UpcomingScheduleEntry, onClick: () -> Unit) {
-    val channel = entry.show.networkName
-        ?: entry.show.webChannelName
-        ?: ""
+    val channel = entry.show.displayChannel
 
     Card(
         modifier = Modifier
@@ -124,34 +142,11 @@ fun UpcomingCard(entry: UpcomingScheduleEntry, onClick: () -> Unit) {
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            if (entry.show.imageUrl != null) {
-                AsyncImage(
-                    model = entry.show.imageUrl,
-                    contentDescription = entry.show.name,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .width(48.dp)
-                        .height(68.dp)
-                        .clip(RoundedCornerShape(8.dp))
-                )
-            } else {
-                Box(
-                    modifier = Modifier
-                        .width(48.dp)
-                        .height(68.dp)
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(MaterialTheme.colorScheme.surfaceVariant),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        Icons.Default.PlayArrow,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.size(20.dp)
-                    )
-                }
-            }
-
+            ShowImage(
+                imageUrl = entry.show.imageUrl,
+                contentDescription = entry.show.name,
+                size = Small
+            )
             Spacer(modifier = Modifier.width(12.dp))
 
             Column(modifier = Modifier.weight(1f)) {

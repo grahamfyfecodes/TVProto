@@ -86,6 +86,7 @@ fun AppNavigation(viewModel: ShowViewModel, networkMonitor: NetworkMonitor) {
                 )
             }
             composable(Screen.Upcoming.route) {
+                // On Click redirects to the show detail screen
                 UpcomingScreen(
                     viewModel = viewModel,
                     onShowClick = { showId ->
